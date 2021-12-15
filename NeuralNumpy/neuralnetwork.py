@@ -4,11 +4,13 @@ class NeuralNetwork:
     '''
     A neural network.
     '''
-    def __init__(self, layers):
+    def __init__(self, layers, loss, optimizer):
         '''
         Initialize the network.
         '''
         self.layers = layers
+        self.loss = loss
+        self.optimizer = optimizer
         self.grad_output = None
         
     def forward(self, input):
@@ -21,27 +23,27 @@ class NeuralNetwork:
         self.output = input
         return self.output
     
-    def backward(self, grad_output):
+    def backward(self, y_true):
         '''
         Perform the backward pass.
         '''
-        self.grad_output = grad_output
+        self.grad_output = self.loss(y_true, self.output)
         for layer in reversed(self.layers):
-            grad_output = layer.backward(self.input, grad_output)
+            self.grad_output = layer.backward(self.grad_output)
         return self.grad_output
     
-    def update(self, learning_rate):
+    def update(self):
         '''
-        Update the parameters of the network.
+        Update the parameters of the network using the optimizer.
         '''
-        for layer in self.layers:
-            layer.update(learning_rate)
+        self.optimizer.update(self.layers)
 
 
 def test():
     from fullyconnected import FullyConnected
     from activation import ReLU, Sigmoid, Softmax
-
+    from loss import MSE
+    from optimizer import SGD
     '''
     Test the neural network class by 
         - creating a neural netwwork 
@@ -49,28 +51,24 @@ def test():
     '''
     # Create the network to solve the XOR problem
     net = NeuralNetwork([
-        FullyConnected((2,), (1,), Sigmoid())
-    ])
+            FullyConnected(input_shape=(2,), output_shape=(1,), activation=Sigmoid())],
+        loss=MSE(),
+        optimizer=SGD())
 
     # Create the XOR problem
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     Y = np.array([[0], [1], [1], [0]])
 
     # Train the network
-    for i in range(10000):
-        # Forward pass
-        output = net.forward(X)
-
-        # Compute the loss
-        loss = np.mean(np.square(output - Y))
-        #print('Loss : ', loss)
-
-        # Backward pass
-        net.backward(Y)
-
-        # Update the parameters
-        net.update(0.01)
+    for i in range(1000):
+        idx = np.random.randint(0, 4)
+        input = X[idx]
+        input = np.reshape(input, (1, 2))
+        net.forward(input)
+        net.backward(Y[idx])
+        net.update()
     
+
     # Test the network
     print(net.forward(np.array([0, 0])))
     print(net.forward(np.array([0, 1])))
@@ -125,5 +123,5 @@ def torch_nn():
 
 
 if __name__ == '__main__':
-    #test()
-    torch_nn()
+    test()
+    #torch_nn()

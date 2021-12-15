@@ -24,7 +24,7 @@ class FullyConnected(Layer):
         self.output = self.activation.activate(np.dot(input, self.weights) + self.bias)
         return self.output
 
-    def backward(self, input, grad_output):
+    def backward(self, grad_output):
         '''
         Perform the backward pass.
         '''
