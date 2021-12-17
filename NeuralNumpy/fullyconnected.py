@@ -28,10 +28,11 @@ class FullyConnected(Layer):
         '''
         Perform the backward pass.
         '''
-        self.grad_input = np.dot(grad_output, self.weights.T) * self.activation.derivative(self.input)
-        self.grad_weights = np.dot(self.input.T, grad_output)
-        self.grad_bias = np.sum(grad_output, axis=0)
-        return self.grad_input
+        m = grad_output.size
+        self.delta = grad_output * self.activation.derivative(self.input)
+        self.grad_weights = 1 / m * np.dot(self.delta, self.input.T)
+        self.grad_bias = 1 / m * np.sum(self.delta, axis=1)
+        return self.delta
     
     def update(self, learning_rate):
         '''

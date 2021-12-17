@@ -2,7 +2,7 @@ class SGD:
     '''
     Stochastic gradient descent optimizer.
     '''
-    def __init__(self, learning_rate=0.01):
+    def __init__(self, learning_rate=0.001):
         '''
         Initialize the optimizer.
         '''

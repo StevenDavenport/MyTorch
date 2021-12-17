@@ -51,7 +51,7 @@ def test():
     '''
     # Create the network to solve the XOR problem
     net = NeuralNetwork([
-            FullyConnected(input_shape=(2,), output_shape=(1,), activation=Sigmoid())],
+            FullyConnected(input_shape=(2,), output_shape=(1,1), activation=Sigmoid())],
         loss=MSE(),
         optimizer=SGD())
 
@@ -59,67 +59,32 @@ def test():
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     Y = np.array([[0], [1], [1], [0]])
 
+    # Outputs to make a mean for Accuracy
+    outputs = []
+    actual = []
+
     # Train the network
-    for i in range(1000):
+    for epoch in range(10000):
         idx = np.random.randint(0, 4)
         input = X[idx]
         input = np.reshape(input, (1, 2))
-        net.forward(input)
-        net.backward(Y[idx])
+        net_out = net.forward(input)
+        out = 1 if net_out > 0.5 else 0
+        outputs.append(net_out)
+        actual.append(Y[idx][0])
+        net.backward(Y[idx][0])
         net.update()
+        loss = net.loss(Y[idx][0], net_out)
+        print(f'Epoch: {epoch}, Output: {out}, Actual: {Y[idx][0]}, Loss: {loss}')
+
+    print('\nAccuracy of Training:', np.mean(outputs == actual))
     
 
     # Test the network
-    print(net.forward(np.array([0, 0])))
-    print(net.forward(np.array([0, 1])))
-    print(net.forward(np.array([1, 0])))
-    print(net.forward(np.array([1, 1])))
-
-
-
-# function that uses pytorch to make and train a neural network
-def torch_nn():
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    import torch.optim as optim
-    from torch.autograd import Variable
-
-    # create the neural network
-    class Net(nn.Module):
-        def __init__(self):
-            super(Net, self).__init__()
-            self.fc1 = nn.Linear(2, 1)
-            self.act1 = nn.Sigmoid()
-
-        def forward(self, x):
-            x = self.fc1(x)
-            x = self.act1(x)
-            return x
-        
-    # create the XOR problem
-    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    Y = np.array([[0], [1], [1], [0]])
-
-    # train the network
-    net = Net()
-    criterion = nn.MSELoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.01)
-    for epoch in range(1000):
-        inputs = Variable(torch.from_numpy(X))
-        targets = Variable(torch.from_numpy(Y))
-
-        optimizer.zero_grad()
-        outputs = net(inputs)
-        loss = criterion(outputs, targets)
-        loss.backward()
-        optimizer.step()
-
-    # test the network
-    print(net(Variable(torch.from_numpy(np.array([0, 0])))))
-    print(net(Variable(torch.from_numpy(np.array([0, 1])))))
-    print(net(Variable(torch.from_numpy(np.array([1, 0])))))
-    print(net(Variable(torch.from_numpy(np.array([1, 1])))))
+    print(1 if net.forward(np.array([0, 0])) > 0.5 else 0)
+    print(1 if net.forward(np.array([0, 1])) > 0.5 else 0)
+    print(1 if net.forward(np.array([1, 0])) > 0.5 else 0)
+    print(1 if net.forward(np.array([1, 1])) > 0.5 else 0)
 
 
 if __name__ == '__main__':

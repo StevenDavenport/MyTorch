@@ -1,0 +1,3 @@
+go through video, write train function
+
+where to use sigmoid deriv?
