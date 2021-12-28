@@ -19,11 +19,11 @@ class ActivationFunction:
         '''
         raise NotImplementedError
 
-    def derivative(self, inputs: np.ndarray) -> np.ndarray:
+    def derivative(self, dvalues: np.ndarray) -> np.ndarray:
         '''
         Derivative of activation function.
         Parameters:
-            inputs: np.ndarray
+            dvalues: np.ndarray
         Returns:
             np.ndarray
         '''
@@ -31,22 +31,11 @@ class ActivationFunction:
 
 class ReLU(ActivationFunction):
     def __call__(self, inputs: np.ndarray) -> np.ndarray:
-        return np.maximum(0, inputs)
+        self.inputs = inputs
+        self.output = np.maximum(0, inputs)
+        return self.output
 
-    def derivative(self, inputs: np.ndarray) -> np.ndarray:
-        return np.where(inputs > 0, 1, 0)
-
-class Sigmoid(ActivationFunction):
-    def __call__(self, inputs: np.ndarray) -> np.ndarray:
-        return 1 / (1 + np.exp(-inputs))
-
-    def derivative(self, inputs: np.ndarray) -> np.ndarray:
-        return self(inputs) * (1 - self(inputs))
-
-class Softmax(ActivationFunction):
-    def __call__(self, inputs: np.ndarray) -> np.ndarray:
-        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-        return exp_values / np.sum(np.exp(inputs), axis=1, keepdims=True)
-        
-    def derivative(self, inputs: np.ndarray) -> np.ndarray:
-        return self(inputs) * (1 - self(inputs))
+    def deriv(self, dvalues: np.ndarray) -> np.ndarray:
+        self.dinputs = dvalues.copy()
+        self.dinputs[self.inputs <= 0] = 0
+        return self.dinputs

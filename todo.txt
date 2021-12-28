@@ -1,1 +1,3 @@
-do book
+lets try and get the book working within classes. Using book example
+
+hate the loss+activation thing, remove it (idk if it's what should be done its gross)
