@@ -234,7 +234,7 @@ def main():
         dense1.forward(X)
         activation1.forward(dense1.output)
         dense2.forward(activation1.output)
-        loss = loss_activation.forward(dense2.output, y)
+        loss = loss_activation.forward(dense2.output, y) 
 
         prediction = np.argmax(loss_activation.output, axis=1)
         if len(y.shape) == 2:

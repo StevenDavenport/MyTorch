@@ -7,7 +7,7 @@ class LossFunction:
         >>> Inherited by other loss functions.
         >>> LossFunction__call__(y, y_hat) -> float
     '''
-    def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
+    def __call__(self, y_hat: np.ndarray, y: np.ndarray) -> float:
         '''
         Loss function.
         Parameters:
@@ -18,7 +18,7 @@ class LossFunction:
         '''
         raise NotImplementedError
 
-    def derivative(self, y: np.ndarray, y_hat: np.ndarray) -> float:
+    def deriv(self, y_hat: np.ndarray, y: np.ndarray) -> float:
         '''
         Derivative of loss function.
         Parameters:
@@ -29,23 +29,28 @@ class LossFunction:
         '''
         raise NotImplementedError
 
-class MSE(LossFunction):
-    def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return np.mean((y - y_hat) ** 2)
+class CategoricalCrossentropy(LossFunction): 
+    def __call__(self, y_hat, y):
+        sample_losses = self.forward(y_hat, y)
+        data_loss = np.mean(sample_losses)
+        return data_loss
 
-    def derivative(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return 2 * (y - y_hat)
+    def forward(self, y_pred, y_true): 
+        samples = len(y_pred)
+        y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
+        if len(y_true.shape) == 1:
+            correct_confidences = y_pred_clipped[range(samples), y_true]
+        elif len(y_true.shape) == 2:
+            correct_confidences = np.sum(y_pred_clipped*y_true, axis=1)
+        negative_log_likelihoods = -np.log(correct_confidences)
+        return negative_log_likelihoods
+    
+    def deriv(self, dvalues, y_true):
+        samples = len(dvalues)
+        labels = len(dvalues[0])
+        if len(y_true.shape) == 1:
+            y_true = np.eye(labels)[y_true]
+        self.dinputs = -y_true / dvalues
+        self.dinputs = self.dinputs / samples
+        return self.dinputs
 
-class CrossEntropy(LossFunction):
-    def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return -np.mean(y * np.log(y_hat))
-
-    def derivative(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return -y / y_hat
-
-class SoftmaxCrossEntropy(LossFunction):
-    def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return -np.mean(y * np.log(y_hat))
-
-    def derivative(self, y: np.ndarray, y_hat: np.ndarray) -> float:
-        return -y / y_hat

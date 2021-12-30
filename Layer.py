@@ -31,7 +31,7 @@ class Layer:
         '''
         raise NotImplementedError
     
-    def backward(self, outputs: np.ndarray) -> np.ndarray:
+    def backward(self, dvalues: np.ndarray) -> np.ndarray:
         '''
         Layer backward function.
         Calculate the gradient of the layer.
@@ -49,9 +49,12 @@ class FullyConnected(Layer):
         self.activation = activation
 
     def __call__(self, inputs: np.ndarray) -> np.ndarray:
+        self.inputs = inputs
         self.output = self.activation(np.dot(inputs, self.weights) + self.biases)
         return self.output
 
-    def backward():
-        pass
-
+    def backward(self, dvalues: np.ndarray) -> np.ndarray:
+        self.dweights = np.dot(self.inputs.T, dvalues)
+        self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
+        self.dinputs = np.dot(dvalues, self.weights.T)
+        return self.dinputs
