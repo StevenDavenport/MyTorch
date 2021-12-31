@@ -52,7 +52,7 @@ class FullyConnected(Layer):
         self.inputs = inputs
         self.output = self.activation(np.dot(inputs, self.weights) + self.biases)
         return self.output
-
+    
     def backward(self, dvalues: np.ndarray) -> np.ndarray:
         self.dweights = np.dot(self.inputs.T, dvalues)
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)

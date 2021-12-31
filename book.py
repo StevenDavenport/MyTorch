@@ -230,7 +230,7 @@ def main():
 
     optimizer = Optimizer_SGD(learning_rate=1., decay=1e-3, momentum=0.9)
 
-    for epoch in range(100001):
+    for epoch in range(10001):
         dense1.forward(X)
         activation1.forward(dense1.output)
         dense2.forward(activation1.output)

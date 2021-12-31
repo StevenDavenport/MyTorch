@@ -59,7 +59,7 @@ def test():
         optim=SGD(learning_rate=1., decay=1e-3, momentum=0.9)
     )
 
-    net.train(X, y, epochs=10001)
+    net.train(X, y, epochs=10000)
 
 if __name__ == '__main__':
     test()

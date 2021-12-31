@@ -44,13 +44,23 @@ class CategoricalCrossentropy(LossFunction):
             correct_confidences = np.sum(y_pred_clipped*y_true, axis=1)
         negative_log_likelihoods = -np.log(correct_confidences)
         return negative_log_likelihoods
-    
+
+    # This is 'backward' from Activation_Softmax_Loss_CategoricalCrossentropy in book.py
     def deriv(self, dvalues, y_true):
+        samples = len(dvalues)
+        if len(y_true.shape) == 2:
+            y_true = np.argmax(y_true, axis=1)
+        self.dinputs = dvalues.copy()
+        self.dinputs[range(samples), y_true] -= 1
+        self.dinputs = self.dinputs / samples
+        return self.dinputs
+
+   # This is backward from Loss_CategoricalCrossentropy in book.py 
+    '''def deriv(self, dvalues, y_true):
         samples = len(dvalues)
         labels = len(dvalues[0])
         if len(y_true.shape) == 1:
             y_true = np.eye(labels)[y_true]
         self.dinputs = -y_true / dvalues
         self.dinputs = self.dinputs / samples
-        return self.dinputs
-
+        return self.dinputs'''
